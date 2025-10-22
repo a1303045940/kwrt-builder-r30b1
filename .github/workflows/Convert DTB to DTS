@@ -1,0 +1,28 @@
+name: Convert DTB to DTS
+on:
+  push:
+    paths:
+      - 'custom-dtb/*.dtb'
+  workflow_dispatch:
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Device Tree Compiler
+        run: sudo apt-get update && sudo apt-get install -y device-tree-compiler
+      - name: Convert DTB to DTS
+        run: |
+          for file in custom-dtb/*.dtb; do
+            filename=$(basename "$file" .dtb)
+            dtc -I dtb -O dts -o "custom-dtb/${filename}.dts" "$file"
+          done
+      - name: Commit and Push Changes
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add custom-dtb/*.dts
+          git commit -m "Convert DTB to DTS automatically" || echo "No changes to commit"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
