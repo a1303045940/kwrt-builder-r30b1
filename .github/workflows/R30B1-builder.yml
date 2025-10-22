@@ -155,7 +155,9 @@ jobs:
           echo "src openwrt_packages https://downloads.openwrt.org/releases/24.10.3/packages/aarch64_cortex-a53/packages" >> repositories.conf
           echo "src openwrt_luci https://downloads.openwrt.org/releases/24.10.3/packages/aarch64_cortex-a53/luci" >> repositories.conf
           cat repositories.conf
-          #替换dtb文件
+          
+           # 验证文件是否存在
+          ls -lah "build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/image-mt7981b-cmcc-rax3000m-nand.dtb"
           #cp "$GITHUB_WORKSPACE/custom-dtb/mt7981b-cmcc-rax3000m-nand.dtb" build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/image-mt7981b-cmcc-rax3000m-nand.dtb
           #./build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/image-mt7981b-cmcc-rax3000m-nand.dtb
           cp "$GITHUB_WORKSPACE/custom-dtb/mt7981b-cmcc-rax3000m-nand.dtb" \
