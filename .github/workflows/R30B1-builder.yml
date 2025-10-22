@@ -130,7 +130,8 @@ jobs:
           echo "src openwrt_packages https://downloads.openwrt.org/releases/24.10.3/packages/aarch64_cortex-a53/packages" >> repositories.conf
           echo "src openwrt_luci https://downloads.openwrt.org/releases/24.10.3/packages/aarch64_cortex-a53/luci" >> repositories.conf
           cat repositories.conf
-          #替换dts文件
+          #替换dtb文件
+          cp "$GITHUB_WORKSPACE/r30b1/filogic.mk" \build_dir\target-aarch64_cortex-a53_musl\linux-mediatek_filogic/filogic.mk
           make image \
           PROFILE=${{ env.PROFILE }} \
           PACKAGES="${{ env.PACKAGES }}" \
