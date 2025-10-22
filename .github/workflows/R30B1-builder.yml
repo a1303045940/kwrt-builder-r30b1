@@ -131,7 +131,7 @@ jobs:
           echo "src openwrt_luci https://downloads.openwrt.org/releases/24.10.3/packages/aarch64_cortex-a53/luci" >> repositories.conf
           cat repositories.conf
           #替换dtb文件
-          cp "$GITHUB_WORKSPACE/custom-dtb/mt7981b-cmcc-rax3000m-nand.dtb" \build_dir\target-aarch64_cortex-a53_musl\linux-mediatek_filogic/image-mt7981b-cmcc-rax3000m-nand.dtb
+          cp "$GITHUB_WORKSPACE/custom-dtb/mt7981b-cmcc-rax3000m-nand.dtb" build_dir\target-aarch64_cortex-a53_musl\linux-mediatek_filogic/image-mt7981b-cmcc-rax3000m-nand.dtb
           make image \
           PROFILE=${{ env.PROFILE }} \
           PACKAGES="${{ env.PACKAGES }}" \
