@@ -12,6 +12,7 @@ on:
         default: false
       CUSTOM_PACKAGE_NAMES:
         description: Name of all custom package inside "custom-packages"
+        default: ''
         #default: luci-app-alpha-config luci-theme-alpha
       UPLOAD_SYSUPGRADE_ONLY:
         description: Save sysupgrade only artifact
