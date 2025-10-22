@@ -16,7 +16,7 @@ jobs:
       
       - name: Clone OpenWrt source
         run: |
-          git clone https://github.com/kiddin9/kwrt-openwrt.git
+          git clone https://github.com/kiddin9/Kwrt.git
           cd kwrt-openwrt
       
       - name: Replace DTS file
