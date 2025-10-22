@@ -1,4 +1,4 @@
-name: Router firmware image builder
+name: R30B1 builder
 
 on:
   push:
