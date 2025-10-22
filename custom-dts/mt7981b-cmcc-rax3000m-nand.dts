@@ -944,7 +944,7 @@
 		led-1 {
 			function = "status";
 			color = <0x03>;
-			gpios = <0x0e 0x0c 0x01>;
+			gpios = <0x0e 0x0b 0x01>;
 		};
 
 		led-2 {
