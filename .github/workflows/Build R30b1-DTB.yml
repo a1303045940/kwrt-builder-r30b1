@@ -3,7 +3,7 @@ name: Build r30b1 DTB
 on:
   push:
     paths:
-      - 'custom-dts/mt7981b-cmcc-rax3000m.dts'
+      - '"$GITHUB_WORKSPACE/custom-dts/mt7981b-cmcc-rax3000m.dts'
   workflow_dispatch:
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
       - name: Replace DTS file
         run: |
           mkdir -p kwrt-openwrt/target/linux/mediatek/dts/
-          cp custom-dts/mt7981b-cmcc-rax3000m.dts kwrt-openwrt/target/linux/mediatek/dts/
+          cp "$GITHUB_WORKSPACE/custom-dts/mt7981b-cmcc-rax3000m.dts" kwrt-openwrt/target/linux/mediatek/dts/mt7981b-cmcc-rax3000m.dts
       
       - name: Install dependencies
         run: |
@@ -44,7 +44,7 @@ jobs:
         run: |
           git config user.name "GitHub Actions"
           git config user.email "actions@github.com"
-          git add custom-dtb/mt7981b-cmcc-rax3000m.dtb
+          git add custom-dtb/CS.dtb
           git commit -m "Build DTB from DTS: mt7981b-cmcc-rax3000m [$(date)]" || echo "No changes to commit"
           git push
         env:
