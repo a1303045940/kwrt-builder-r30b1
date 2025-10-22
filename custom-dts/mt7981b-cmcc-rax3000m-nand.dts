@@ -698,7 +698,7 @@
 
 						port@0 {
 							reg = <0x00>;
-							label = "lan3";
+							label = "lan1";
 						};
 
 						port@1 {
@@ -708,7 +708,7 @@
 
 						port@2 {
 							reg = <0x02>;
-							label = "lan1";
+							label = "lan3";
 						};
 
 						port@6 {
