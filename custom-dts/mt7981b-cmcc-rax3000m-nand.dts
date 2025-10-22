@@ -897,7 +897,7 @@
 	};
 
 	aliases {
-		led-boot = "/gpio-leds/led-2";
+		led-boot = "/gpio-leds/led-0";
 		led-failsafe = "/gpio-leds/led-2";
 		led-running = "/gpio-leds/led-0";
 		led-upgrade = "/gpio-leds/led-0";
