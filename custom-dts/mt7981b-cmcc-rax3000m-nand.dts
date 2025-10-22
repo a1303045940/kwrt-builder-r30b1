@@ -5,7 +5,7 @@
 	interrupt-parent = <0x01>;
 	#address-cells = <0x02>;
 	#size-cells = <0x02>;
-	model = "CMCC RAX3000M (NAND version)";
+	model = "CLT R30B1";
 
 	cpus {
 		#address-cells = <0x01>;
