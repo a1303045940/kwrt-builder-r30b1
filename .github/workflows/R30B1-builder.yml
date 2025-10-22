@@ -126,13 +126,37 @@ jobs:
         run: |
           cd ${{ env.IMAGE_BUILDER_FILE_NAME }}
           # switch to online repository
+          # ========== 调试步骤：找到 DTB 文件的真实位置 ==========
+          echo "========== 搜索所有 DTB 文件 =========="
+          find . -name "*.dtb" -type f 2>/dev/null | head -30
+          
+          echo "========== 搜索 mt7981b 相关文件 =========="
+          find . -name "*mt7981b*" -type f 2>/dev/null | head -30
+          
+          echo "========== 搜索 rax3000m 相关文件 =========="
+          find . -name "*rax3000m*" -type f 2>/dev/null | head -30
+          
+          echo "========== 检查 build_dir 结构 =========="
+          ls -lah build_dir/ 2>/dev/null || echo "build_dir 不存在"
+          
+          echo "========== 检查 bin 目录结构 =========="
+          find bin/ -type d | head -20
+          
+          echo "========== 检查 staging_dir 结构 =========="
+          ls -lah staging_dir/ 2>/dev/null || echo "staging_dir 不存在"
+          
+          echo "========== 完整的目录树（前 50 行）=========="
+          find . -type d -name "*mediatek*" | head -20
+
+
+          
           sed -i 's|file://www/wwwroot/|https://|g' repositories.conf
           # add openwrt repository for missing packages
           echo "src openwrt_packages https://downloads.openwrt.org/releases/24.10.3/packages/aarch64_cortex-a53/packages" >> repositories.conf
           echo "src openwrt_luci https://downloads.openwrt.org/releases/24.10.3/packages/aarch64_cortex-a53/luci" >> repositories.conf
           cat repositories.conf
           #替换dtb文件
-          cp "$GITHUB_WORKSPACE/custom-dtb/mt7981b-cmcc-rax3000m-nand.dtb" build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/image-mt7981b-cmcc-rax3000m-nand.dtb
+          #cp "$GITHUB_WORKSPACE/custom-dtb/mt7981b-cmcc-rax3000m-nand.dtb" build_dir/target-aarch64_cortex-a53_musl/linux-mediatek_filogic/image-mt7981b-cmcc-rax3000m-nand.dtb
           make image \
           PROFILE=${{ env.PROFILE }} \
           PACKAGES="${{ env.PACKAGES }}" \
