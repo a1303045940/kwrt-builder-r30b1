@@ -146,8 +146,8 @@ jobs:
           name: ${{ env.OUTPUT_BASE_NAME }}-sysupgrade
           path: |
             ${{ env.BUILD_TARGET_DIR }}/${{ env.OUTPUT_BASE_NAME }}-squashfs-sysupgrade.bin
-            ${{ env.BUILD_TARGET_DIR }}/profiles.json
-            ${{ env.BUILD_TARGET_DIR }}/sha256sums
+            #${{ env.BUILD_TARGET_DIR }}/profiles.json
+            #${{ env.BUILD_TARGET_DIR }}/sha256sums
           retention-days: 5
 
       - name: Upload all output
