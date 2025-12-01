@@ -78,7 +78,7 @@ jobs:
           #IMAGE_BUILDER_URL=${{ env.OPENWRT_DOWNLOAD_URL }}/${{ env.OPENWRT_VERSION }}/targets/$OPENWRT_TARGET/$IMAGE_BUILDER_FILE_NAME.tar
           IMAGE_BUILDER_URL=${{ env.OPENWRT_DOWNLOAD_URL }}/${{ env.OPENWRT_VERSION }}/targets/$OPENWRT_TARGET/$IMAGE_BUILDER_FILE_NAME.tar
           #IMAGE_BUILDER_URL="https://github.com/a1303045940/Kwrt/releases/download/12%2F01_2025_16%2F09_mediatek_filogic/targets.tar"
-          IMAGE_BUILDER_URL=""
+          IMAGE_BUILDER_URL="https://github.com/a1303045940/Kwrt/releases/download/12%2F02_2025_02%2F20_mediatek_filogic/targets.tar.gz"
           CURL_OUTPUT=$(curl --HEAD ${IMAGE_BUILDER_URL}.xz)
           BUILDER_FILE_EXT=${{ env.BUILDER_FILE_EXT }}
           if [[ $(echo $CURL_OUTPUT | grep "404") != "" ]]; then
