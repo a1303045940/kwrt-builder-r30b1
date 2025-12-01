@@ -178,6 +178,7 @@ jobs:
         with:
           name: "${{ github.ref_name }}"
           artifacts: "${{ env.BUILD_TARGET_DIR }}/*"
+          token: ${{ secrets.GH_TOKEN }}
           body: |
             ### Build information:
             * Build target: **${{ env.OPENWRT_TARGET }}**
