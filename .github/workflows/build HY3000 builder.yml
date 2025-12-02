@@ -42,7 +42,7 @@ on:
 
 env:
   BUILD_CUSTOM_PACKAGE: ${{github.event_name == 'push' || inputs.BUILD_CUSTOM_PACKAGE}}
-  CUSTOM_PACKAGE_NAMES: ${{inputs.CUSTOM_PACKAGE_NAMES || 'luci-app-alpha-config luci-theme-alpha wrtbwmon luci-app-wrtbwmon'}}
+  CUSTOM_PACKAGE_NAMES: ${{inputs.CUSTOM_PACKAGE_NAMES || 'luci-theme-argon luci-i18n-argon-config'}}
   COPY_CUSTOM_FILES: ${{github.event_name == 'push' || inputs.COPY_CUSTOM_FILES}}
   FILES: ""
   UPLOAD_SYSUPGRADE_ONLY: ${{inputs.UPLOAD_SYSUPGRADE_ONLY || false}}
