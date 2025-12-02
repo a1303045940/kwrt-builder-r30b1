@@ -16,7 +16,7 @@ on:
         default: false
       CUSTOM_PACKAGE_NAMES:
         description: Name of all custom package inside "custom-packages"
-        default: luci-theme-argon luci-i18n-ttyd-zh-cn luci-i18n-quickstart-zh-cn luci-app-ssr-plus luci-app-npc luci-i18n-passwall-zh-cn luci-app-zerotier luci-app-openclash  
+        default: luci-theme-argon luci-i18n-argon-config-zh-cn luci-i18n-dockerman-zh-cn luci-i18n-ttyd-zh-cn luci-i18n-package-manager-zh-cn luci-i18n-zerotier-zh-cn luci-i18n-quickstart-zh-cn luci-app-ssr-plus luci-app-npc luci-i18n-passwall-zh-cn luci-app-zerotier luci-app-openclash  
       UPLOAD_SYSUPGRADE_ONLY:
         description: Save sysupgrade only artifact
         type: boolean
