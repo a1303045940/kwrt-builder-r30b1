@@ -56,6 +56,28 @@ chmod +x /etc/init.d/tailscale
 uci set dhcp.@dnsmasq[0].port='54'
 uci commit dhcp
 
+uci set system.@system[0].hostname='Openwrt'
+uci commit system
+
+# 2.4G 更名和设置密码
+uci set wireless.@wifi-iface[0].ssid='OpenwrtG2.4G'
+uci set wireless.@wifi-iface[0].key='password'
+uci set wireless.@wifi-iface[0].encryption='psk2'
+
+# 5G 更名和设置密码
+uci set wireless.@wifi-iface[1].ssid='Openwrt-5G'
+uci set wireless.@wifi-iface[1].key='password'
+uci set wireless.@wifi-iface[1].encryption='psk2'
+
+uci commit wireless
+
+uci set network.lan.ipaddr='192.168.6.1'
+uci commit network
+
+
+
+
+
 # Fix aria2 start issue. Refer https://github.com/aria2/aria2/issues/2152#issuecomment-2685168902
 sed -i -e 's/section" log/section" log\n        procd_add_jail_mount "\/usr\/lib" #fix "errorCode=1 OSSL_PROVIDER_load 'legacy' failed"/g' /etc/init.d/aria2 
 
