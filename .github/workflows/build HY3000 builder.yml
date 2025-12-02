@@ -1,0 +1,208 @@
+name: build HY3000 builder
+
+on:
+  push:
+    tags:
+      - '**'
+  workflow_dispatch:
+    inputs:
+      BUILD_CUSTOM_PACKAGE:
+        description: Build custom package inside "custom-packages"
+        type: boolean
+        default: false
+      COPY_CUSTOM_FILES:
+        description: Copy custom files inside "custom-files" to image builder
+        type: boolean
+        default: false
+      CUSTOM_PACKAGE_NAMES:
+        description: Name of all custom package inside "custom-packages"
+        default: luci-app-alpha-config luci-theme-alpha wrtbwmon luci-app-wrtbwmon
+      UPLOAD_SYSUPGRADE_ONLY:
+        description: Save sysupgrade only artifact
+        type: boolean
+        default: true
+      OPENWRT_DOWNLOAD_URL:
+        description: Openwrt base download url
+        default: https://dl.openwrt.ai/releases
+      OPENWRT_VERSION:
+        description: Kwrt version
+        default: "24.10"
+      OPENWRT_TARGET:
+        description: Kwrt target to build
+        default: mediatek/filogic
+      OPENWRT_PROFILE:
+        description: Openwrt device profile name
+        default: sl_3000-emmc
+      OPENWRT_PACKAGES:
+        description: Pre install package to openwrt
+        default: adguardhome aria2 aria2-openssl ariang attr autocore automount avahi-dbus-daemon base-files bash bc blkid block-mount btrfs-progs busybox ca-bundle ca-certificates cgi-io coremark coreutils coreutils-nohup coreutils-stat coreutils-timeout curl dbus ddns-scripts ddns-scripts-cloudflare ddns-scripts-dnspod-v3 ddns-scripts-services dnsmasq dnsmasq-full dosfstools dropbear ds-lite e2fsprogs eip197-mini-firmware exfat-fsck exfat-mkfs f2fsck fdisk firewall4 fitblk fstools fwtool getrandom git git-http hdparm hostapd-common htop https-dns-proxy ip-tiny ip6tables-nft ip6tables-zz-legacy ipset iptables-mod-conntrack-extra iptables-mod-ipopt iptables-mod-ipsec iptables-nft iptables-zz-legacy iw iwinfo jansson jshn jsonfilter kernel kmod-asn1-decoder kmod-asn1-encoder kmod-cfg80211 kmod-crypto-acompress kmod-crypto-aead kmod-crypto-arc4 kmod-crypto-authenc kmod-crypto-blake2b kmod-crypto-cbc kmod-crypto-ccm kmod-crypto-cmac kmod-crypto-crc32c kmod-crypto-ctr kmod-crypto-cts kmod-crypto-deflate kmod-crypto-des kmod-crypto-ecb kmod-crypto-echainiv kmod-crypto-gcm kmod-crypto-geniv kmod-crypto-gf128 kmod-crypto-ghash kmod-crypto-hash kmod-crypto-hmac kmod-crypto-hw-safexcel kmod-crypto-kpp kmod-crypto-lib-chacha20 kmod-crypto-lib-chacha20poly1305 kmod-crypto-lib-curve25519 kmod-crypto-lib-poly1305 kmod-crypto-manager kmod-crypto-md5 kmod-crypto-null kmod-crypto-rng kmod-crypto-seqiv kmod-crypto-sha1 kmod-crypto-sha256 kmod-crypto-sha3 kmod-crypto-sha512 kmod-crypto-user kmod-crypto-xxhash kmod-dax kmod-dm kmod-dnsresolver kmod-fs-btrfs kmod-fs-exfat kmod-fs-exportfs kmod-fs-ext4 kmod-fs-msdos kmod-fs-nfs kmod-fs-nfs-common kmod-fs-nfs-common-rpcsec kmod-fs-nfs-v4 kmod-fs-nfsd kmod-fs-ntfs3 kmod-fs-vfat kmod-gpio-button-hotplug kmod-hwmon-core kmod-hwmon-pwmfan kmod-ifb kmod-ip6-tunnel kmod-ip6tables kmod-ipsec kmod-ipsec4 kmod-ipsec6 kmod-ipt-conntrack kmod-ipt-conntrack-extra kmod-ipt-core kmod-ipt-ipopt kmod-ipt-ipsec kmod-ipt-ipset kmod-ipt-raw kmod-iptunnel4 kmod-iptunnel6 kmod-keys-encrypted kmod-keys-trusted kmod-l2tp kmod-leds-gpio kmod-lib-crc-ccitt kmod-lib-crc16 kmod-lib-crc32c kmod-lib-lzo kmod-lib-raid6 kmod-lib-xor kmod-lib-xxhash kmod-lib-zlib-deflate kmod-lib-zlib-inflate kmod-lib-zstd kmod-libphy kmod-mac80211 kmod-macvlan kmod-mppe kmod-mt76-connac kmod-mt76-core kmod-mt7915e kmod-mt7981-firmware kmod-nf-conncount kmod-nf-conntrack kmod-nf-conntrack-netlink kmod-nf-conntrack6 kmod-nf-flow kmod-nf-ipt kmod-nf-ipt6 kmod-nf-log kmod-nf-log6 kmod-nf-nat kmod-nf-reject kmod-nf-reject6 kmod-nf-socket kmod-nf-tproxy kmod-nfnetlink kmod-nft-compat kmod-nft-core kmod-nft-fib kmod-nft-fullcone kmod-nft-nat kmod-nft-offload kmod-nft-socket kmod-nft-tproxy kmod-nls-base kmod-nls-cp437 kmod-nls-cp932 kmod-nls-cp936 kmod-nls-cp950 kmod-nls-iso8859-1 kmod-nls-utf8 kmod-oid-registry kmod-phy-aquantia kmod-ppp kmod-pppoe kmod-pppol2tp kmod-pppox kmod-random-core kmod-sched-cake kmod-sched-core kmod-scsi-core kmod-slhc kmod-tcp-bbr kmod-thermal kmod-tpm kmod-tun kmod-udptunnel4 kmod-udptunnel6 kmod-usb-core kmod-usb-ledtrig-usbport kmod-usb-storage kmod-usb-storage-extras kmod-usb-storage-uas kmod-usb-xhci-hcd kmod-usb-xhci-mtk kmod-usb3 kmod-wireguard kmod-zram libacl libatomic libattr libavahi-client libavahi-dbus-support libblkid libblobmsg-json libbz2 libc libcap libcap-ng libcares libcomerr libcurl libdaemon libdbus libdevmapper libe2p libev libevdev libexpat libext2fs libf2fs libfdisk libffi libgcc libgdbm libgmp libgnutls libip4tc libip6tc libipset libiptext-nft libiptext libiptext6 libiwinfo-data libiwinfo-lua libiwinfo libjson-c libjson-script libkeyutils libldns liblua liblucihttp-lua liblucihttp-ucode liblucihttp liblzma liblzo libmbedtls libminiupnpc libmnl libmount libnatpmp libncurses libnetfilter-conntrack libnettle libnfnetlink libnftnl libnghttp2 libnl-tiny libopenssl-conf libopenssl-legacy libopenssl libpam libparted libpcre2 libpopt libpthread libpython3 libreadline librt libsmartcols libsodium libspeedtestcpp libsqlite3 libss libstdcpp libtasn1 libtirpc libubox libubus-lua libubus libuci-lua libuci libuclient libucode libudebug libudev-zero libusb-1.0 libustream-mbedtls libuuid libuv libwrap libxml2 libxtables logd lsblk lua luci luci-app-advancedplus luci-app-aria2 luci-app-ddns luci-app-diskman luci-app-fan luci-app-filemanager luci-app-firewall luci-app-log-viewer luci-app-package-manager luci-app-partexp luci-app-sqm luci-app-syscontrol luci-base luci-compat luci-lib-base luci-lib-fs luci-lib-ip luci-lib-ipkg luci-lib-jsonc luci-lib-nixio luci-lib-uqr luci-light luci-lua-runtime luci-mod-admin-full luci-mod-network luci-mod-status luci-mod-system luci-proto-ipv6 luci-proto-ppp luci-proto-wireguard luci-theme-bootstrap miniupnpd-nftables mkf2fs mt7981-wo-firmware mtd my-default-settings nano netifd nfs-kernel-server nfs-utils-libs nftables-json nload ntfs3-mount odhcp6c odhcpd-ipv6only openssh-sftp-server openssl-util openwrt-keyring opkg parted ppp ppp-mod-pppoe ppp-mod-pppol2tp procd procd-seccomp procd-ujail px5g-mbedtls python3 python3-asyncio python3-base python3-cgi python3-cgitb python3-codecs python3-ctypes python3-dbm python3-decimal python3-distutils python3-email python3-light python3-logging python3-lzma python3-multiprocessing python3-ncurses python3-openssl python3-pip python3-pydoc python3-readline python3-sqlite3 python3-unittest python3-urllib python3-uuid python3-venv python3-xml resolveip rpcbind rpcd rpcd-mod-file rpcd-mod-iwinfo rpcd-mod-luci rpcd-mod-rpcsys rpcd-mod-rrdns rpcd-mod-ucode rsync shellsync smartmontools speedtestcpp sqm-scripts swconfig tailscale tc-tiny terminfo ubi-utils uboot-envtools ubox ubus ubusd uci uclient-fetch ucode ucode-mod-fs ucode-mod-html ucode-mod-lua ucode-mod-math ucode-mod-nl80211 ucode-mod-rtnl ucode-mod-ubus ucode-mod-uci ucode-mod-uloop uhttpd uhttpd-mod-ubus urandom-seed urngd usbids usbutils usign wget-ssl wifi-scripts wireguard-tools wireless-regdb wpad-basic-mbedtls xtables-legacy xtables-nft zlib zram-swap
+      DISABLED_SERVICES:
+        description: List of service to disable startup
+        default: https-dns-proxy
+
+env:
+  BUILD_CUSTOM_PACKAGE: ${{github.event_name == 'push' || inputs.BUILD_CUSTOM_PACKAGE}}
+  CUSTOM_PACKAGE_NAMES: ${{inputs.CUSTOM_PACKAGE_NAMES || 'luci-app-alpha-config luci-theme-alpha wrtbwmon luci-app-wrtbwmon'}}
+  COPY_CUSTOM_FILES: ${{github.event_name == 'push' || inputs.COPY_CUSTOM_FILES}}
+  FILES: ""
+  UPLOAD_SYSUPGRADE_ONLY: ${{inputs.UPLOAD_SYSUPGRADE_ONLY || false}}
+  OPENWRT_DOWNLOAD_URL: ${{inputs.OPENWRT_DOWNLOAD_URL || 'https://dl.openwrt.ai/releases'}}
+  OPENWRT_VERSION: ${{inputs.OPENWRT_VERSION || '24.10'}}
+  OPENWRT_TARGET: ${{inputs.OPENWRT_TARGET || 'mediatek/filogic'}}
+  PROFILE: ${{inputs.OPENWRT_PROFILE || 'cmcc_rax3000m-nand'}}
+  PACKAGES: ${{inputs.OPENWRT_PACKAGES || 'adguardhome aria2 aria2-openssl ariang attr autocore automount avahi-dbus-daemon base-files bash bc blkid block-mount btrfs-progs busybox ca-bundle ca-certificates cgi-io coremark coreutils coreutils-nohup coreutils-stat coreutils-timeout curl dbus ddns-scripts ddns-scripts-cloudflare ddns-scripts-dnspod-v3 ddns-scripts-services dnsmasq dnsmasq-full dosfstools dropbear ds-lite e2fsprogs eip197-mini-firmware exfat-fsck exfat-mkfs f2fsck fdisk firewall4 fitblk fstools fwtool getrandom git git-http hdparm hostapd-common htop https-dns-proxy ip-tiny ip6tables-nft ip6tables-zz-legacy ipset iptables-mod-conntrack-extra iptables-mod-ipopt iptables-mod-ipsec iptables-nft iptables-zz-legacy iw iwinfo jansson jshn jsonfilter kernel kmod-asn1-decoder kmod-asn1-encoder kmod-cfg80211 kmod-crypto-acompress kmod-crypto-aead kmod-crypto-arc4 kmod-crypto-authenc kmod-crypto-blake2b kmod-crypto-cbc kmod-crypto-ccm kmod-crypto-cmac kmod-crypto-crc32c kmod-crypto-ctr kmod-crypto-cts kmod-crypto-deflate kmod-crypto-des kmod-crypto-ecb kmod-crypto-echainiv kmod-crypto-gcm kmod-crypto-geniv kmod-crypto-gf128 kmod-crypto-ghash kmod-crypto-hash kmod-crypto-hmac kmod-crypto-hw-safexcel kmod-crypto-kpp kmod-crypto-lib-chacha20 kmod-crypto-lib-chacha20poly1305 kmod-crypto-lib-curve25519 kmod-crypto-lib-poly1305 kmod-crypto-manager kmod-crypto-md5 kmod-crypto-null kmod-crypto-rng kmod-crypto-seqiv kmod-crypto-sha1 kmod-crypto-sha256 kmod-crypto-sha3 kmod-crypto-sha512 kmod-crypto-user kmod-crypto-xxhash kmod-dax kmod-dm kmod-dnsresolver kmod-fs-btrfs kmod-fs-exfat kmod-fs-exportfs kmod-fs-ext4 kmod-fs-msdos kmod-fs-nfs kmod-fs-nfs-common kmod-fs-nfs-common-rpcsec kmod-fs-nfs-v4 kmod-fs-nfsd kmod-fs-ntfs3 kmod-fs-vfat kmod-gpio-button-hotplug kmod-hwmon-core kmod-hwmon-pwmfan kmod-ifb kmod-ip6-tunnel kmod-ip6tables kmod-ipsec kmod-ipsec4 kmod-ipsec6 kmod-ipt-conntrack kmod-ipt-conntrack-extra kmod-ipt-core kmod-ipt-ipopt kmod-ipt-ipsec kmod-ipt-ipset kmod-ipt-raw kmod-iptunnel4 kmod-iptunnel6 kmod-keys-encrypted kmod-keys-trusted kmod-l2tp kmod-leds-gpio kmod-lib-crc-ccitt kmod-lib-crc16 kmod-lib-crc32c kmod-lib-lzo kmod-lib-raid6 kmod-lib-xor kmod-lib-xxhash kmod-lib-zlib-deflate kmod-lib-zlib-inflate kmod-lib-zstd kmod-libphy kmod-mac80211 kmod-macvlan kmod-mppe kmod-mt76-connac kmod-mt76-core kmod-mt7915e kmod-mt7981-firmware kmod-nf-conncount kmod-nf-conntrack kmod-nf-conntrack-netlink kmod-nf-conntrack6 kmod-nf-flow kmod-nf-ipt kmod-nf-ipt6 kmod-nf-log kmod-nf-log6 kmod-nf-nat kmod-nf-reject kmod-nf-reject6 kmod-nf-socket kmod-nf-tproxy kmod-nfnetlink kmod-nft-compat kmod-nft-core kmod-nft-fib kmod-nft-fullcone kmod-nft-nat kmod-nft-offload kmod-nft-socket kmod-nft-tproxy kmod-nls-base kmod-nls-cp437 kmod-nls-cp932 kmod-nls-cp936 kmod-nls-cp950 kmod-nls-iso8859-1 kmod-nls-utf8 kmod-oid-registry kmod-phy-aquantia kmod-ppp kmod-pppoe kmod-pppol2tp kmod-pppox kmod-random-core kmod-sched-cake kmod-sched-core kmod-scsi-core kmod-slhc kmod-tcp-bbr kmod-thermal kmod-tpm kmod-tun kmod-udptunnel4 kmod-udptunnel6 kmod-usb-core kmod-usb-ledtrig-usbport kmod-usb-storage kmod-usb-storage-extras kmod-usb-storage-uas kmod-usb-xhci-hcd kmod-usb-xhci-mtk kmod-usb3 kmod-wireguard kmod-zram libacl libatomic libattr libavahi-client libavahi-dbus-support libblkid libblobmsg-json libbz2 libc libcap libcap-ng libcares libcomerr libcurl libdaemon libdbus libdevmapper libe2p libev libevdev libexpat libext2fs libf2fs libfdisk libffi libgcc libgdbm libgmp libgnutls libip4tc libip6tc libipset libiptext-nft libiptext libiptext6 libiwinfo-data libiwinfo-lua libiwinfo libjson-c libjson-script libkeyutils libldns liblua liblucihttp-lua liblucihttp-ucode liblucihttp liblzma liblzo libmbedtls libminiupnpc libmnl libmount libnatpmp libncurses libnetfilter-conntrack libnettle libnfnetlink libnftnl libnghttp2 libnl-tiny libopenssl-conf libopenssl-legacy libopenssl libpam libparted libpcre2 libpopt libpthread libpython3 libreadline librt libsmartcols libsodium libspeedtestcpp libsqlite3 libss libstdcpp libtasn1 libtirpc libubox libubus-lua libubus libuci-lua libuci libuclient libucode libudebug libudev-zero libusb-1.0 libustream-mbedtls libuuid libuv libwrap libxml2 libxtables logd lsblk lua luci luci-app-advancedplus luci-app-aria2 luci-app-ddns luci-app-diskman luci-app-fan luci-app-filemanager luci-app-firewall luci-app-log-viewer luci-app-package-manager luci-app-partexp luci-app-sqm luci-app-syscontrol luci-base luci-compat luci-lib-base luci-lib-fs luci-lib-ip luci-lib-ipkg luci-lib-jsonc luci-lib-nixio luci-lib-uqr luci-light luci-lua-runtime luci-mod-admin-full luci-mod-network luci-mod-status luci-mod-system luci-proto-ipv6 luci-proto-ppp luci-proto-wireguard luci-theme-bootstrap miniupnpd-nftables mkf2fs mt7981-wo-firmware mtd my-default-settings nano netifd nfs-kernel-server nfs-utils-libs nftables-json nload ntfs3-mount odhcp6c odhcpd-ipv6only openssh-sftp-server openssl-util openwrt-keyring opkg parted ppp ppp-mod-pppoe ppp-mod-pppol2tp procd procd-seccomp procd-ujail px5g-mbedtls python3 python3-asyncio python3-base python3-cgi python3-cgitb python3-codecs python3-ctypes python3-dbm python3-decimal python3-distutils python3-email python3-light python3-logging python3-lzma python3-multiprocessing python3-ncurses python3-openssl python3-pip python3-pydoc python3-readline python3-sqlite3 python3-unittest python3-urllib python3-uuid python3-venv python3-xml resolveip rpcbind rpcd rpcd-mod-file rpcd-mod-iwinfo rpcd-mod-luci rpcd-mod-rpcsys rpcd-mod-rrdns rpcd-mod-ucode rsync shellsync smartmontools speedtestcpp sqm-scripts swconfig tailscale tc-tiny terminfo ubi-utils uboot-envtools ubox ubus ubusd uci uclient-fetch ucode ucode-mod-fs ucode-mod-html ucode-mod-lua ucode-mod-math ucode-mod-nl80211 ucode-mod-rtnl ucode-mod-ubus ucode-mod-uci ucode-mod-uloop uhttpd uhttpd-mod-ubus urandom-seed urngd usbids usbutils usign wget-ssl wifi-scripts wireguard-tools wireless-regdb wpad-basic-mbedtls xtables-legacy xtables-nft zlib zram-swap'}}
+  DISABLED_SERVICES:  ${{inputs.DISABLED_SERVICES || 'https-dns-proxy'}}
+  IMAGE_BUILDER_FILE_NAME: ""
+  IMAGE_BUILDER_URL: ""
+  NEED_DOWNLOAD: true
+  BUILD_TARGET_DIR: ""
+  OUTPUT_BASE_NAME: ""
+  BUILDER_FILE_EXT: ".xz"
+  OPENWRT_PACKAGE_VERSION: "24.10.4"
+
+jobs:
+  build-image:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout if needed
+        uses: actions/checkout@v4
+        if: ${{ env.BUILD_CUSTOM_PACKAGE }}
+
+      - name: Setup variables
+        run: |
+          OPENWRT_TARGET=${{ env.OPENWRT_TARGET }}
+          OPENWRT_TARGET_AS_NAME=${OPENWRT_TARGET////-}
+          IMAGE_BUILDER_FILE_NAME=kwrt-imagebuilder-${OPENWRT_TARGET_AS_NAME}.Linux-x86_64
+          #IMAGE_BUILDER_URL=${{ env.OPENWRT_DOWNLOAD_URL }}/${{ env.OPENWRT_VERSION }}/targets/$OPENWRT_TARGET/$IMAGE_BUILDER_FILE_NAME.tar
+          IMAGE_BUILDER_URL=${{ env.OPENWRT_DOWNLOAD_URL }}/${{ env.OPENWRT_VERSION }}/targets/$OPENWRT_TARGET/$IMAGE_BUILDER_FILE_NAME.tar
+          #IMAGE_BUILDER_URL="https://github.com/a1303045940/Kwrt/releases/download/12%2F01_2025_16%2F09_mediatek_filogic/targets.tar"
+          IMAGE_BUILDER_URL="https://github.com/a1303045940/Kwrt/releases/download/12%2F02_2025_15%2F25_mediatek_filogic/openwrt-imagebuilder-mediatek-filogic.Linux-x86_64.tar"
+          CURL_OUTPUT=$(curl --HEAD ${IMAGE_BUILDER_URL}.xz)
+          BUILDER_FILE_EXT=${{ env.BUILDER_FILE_EXT }}
+          if [[ $(echo $CURL_OUTPUT | grep "404") != "" ]]; then
+            BUILDER_FILE_EXT=".gz"
+            echo "BUILDER_FILE_EXT=${BUILDER_FILE_EXT}" >> $GITHUB_ENV
+          fi
+          if [[ $(echo $CURL_OUTPUT | grep "404") != "" ]]; then
+            BUILDER_FILE_EXT=".zst"
+            echo "BUILDER_FILE_EXT=${BUILDER_FILE_EXT}" >> $GITHUB_ENV
+          fi
+          IMAGE_BUILDER_URL=${IMAGE_BUILDER_URL}${BUILDER_FILE_EXT}
+          BUILD_TARGET_DIR=$IMAGE_BUILDER_FILE_NAME/bin/targets/$OPENWRT_TARGET
+          OUTPUT_BASE_NAME=kwrt-${OPENWRT_TARGET_AS_NAME}-${{ env.PROFILE }}
+          echo "IMAGE_BUILDER_FILE_NAME=${IMAGE_BUILDER_FILE_NAME}" >> $GITHUB_ENV
+          echo "IMAGE_BUILDER_URL=${IMAGE_BUILDER_URL}" >> $GITHUB_ENV
+          echo "BUILD_TARGET_DIR=${BUILD_TARGET_DIR}" >> $GITHUB_ENV
+          echo "OUTPUT_BASE_NAME=${OUTPUT_BASE_NAME}" >> $GITHUB_ENV
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+          key: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+
+      - name: Check file 
+        shell: bash
+        run: |
+          if [[ -d ${{env.IMAGE_BUILDER_FILE_NAME}} ]]; then
+            echo "NEED_DOWNLOAD=false" >> $GITHUB_ENV
+          else
+            echo "NEED_DOWNLOAD=true" >> $GITHUB_ENV
+          fi
+
+      - name: Download and extract image builder
+        if: ${{ env.NEED_DOWNLOAD == 'true' }}
+        run: |
+          wget ${{ env.IMAGE_BUILDER_URL }}
+          IMAGE_BUILD_FILE=${{env.IMAGE_BUILDER_FILE_NAME}}.tar${{ env.BUILDER_FILE_EXT }}
+          if [[ ${{ env.BUILDER_FILE_EXT }} == ".zst" ]]; then
+            tar --zstd -x -f ${IMAGE_BUILD_FILE}
+          else
+            tar -J -x -f ${IMAGE_BUILD_FILE}
+          fi
+
+      - name: Copy custom packages and add custom package
+        if: ${{ env.BUILD_CUSTOM_PACKAGE }}
+        run: |
+          rsync -hav custom-packages/* ${{env.IMAGE_BUILDER_FILE_NAME}}/packages/
+          echo "PACKAGES=${{env.PACKAGES}} ${{env.CUSTOM_PACKAGE_NAMES}}" >> $GITHUB_ENV
+
+      - name: Copy custom files to image builder
+        if: ${{ env.COPY_CUSTOM_FILES }}
+        run: |
+          rsync -hav custom-files/* ${{env.IMAGE_BUILDER_FILE_NAME}}/files/
+          echo "FILES=files" >> $GITHUB_ENV
+
+      - name: Save cache
+        if: ${{ env.NEED_DOWNLOAD == 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+          key: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+      - name: Build kwrt image
+        run: |
+          cd ${{ env.IMAGE_BUILDER_FILE_NAME }}
+          # switch to online repository
+          sed -i 's|file://www/wwwroot/|https://|g' repositories.conf
+          # change to gz format
+          sed -i 's|src |src/gz |g' repositories.conf
+          # add openwrt repository for missing packages
+          echo "# Openwrt repo for missing package" >> repositories.conf
+          echo "src/gz openwrt_packages https://downloads.openwrt.org/releases/${{ env.OPENWRT_PACKAGE_VERSION }}/packages/aarch64_cortex-a53/packages" >> repositories.conf
+          echo "src/gz openwrt_luci https://downloads.openwrt.org/releases/${{ env.OPENWRT_PACKAGE_VERSION }}/packages/aarch64_cortex-a53/luci" >> repositories.conf
+          cat repositories.conf
+          make image \
+          PROFILE=${{ env.PROFILE }} \
+          PACKAGES="${{ env.PACKAGES }}" \
+          FILES="${{ env.FILES }}" \
+          DISABLED_SERVICES="${{ env.DISABLED_SERVICES }}"
+          ls -lah bin/targets/${{ env.OPENWRT_TARGET }}
+
+      - name: Upload sysupgrade output
+        if: ${{ github.event_name == 'workflow_dispatch' && env.UPLOAD_SYSUPGRADE_ONLY == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.OUTPUT_BASE_NAME }}-sysupgrade
+          path: |
+            ${{ env.BUILD_TARGET_DIR }}/${{ env.OUTPUT_BASE_NAME }}-squashfs-sysupgrade.bin
+            ${{ env.BUILD_TARGET_DIR }}/profiles.json
+            ${{ env.BUILD_TARGET_DIR }}/sha256sums
+          retention-days: 5
+
+      - name: Upload all output
+        if: ${{ github.event_name == 'workflow_dispatch' && env.UPLOAD_SYSUPGRADE_ONLY == 'false' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.OUTPUT_BASE_NAME }}
+          path: ${{ env.BUILD_TARGET_DIR }}
+          retention-days: 5
+
+      - name: Create release
+        uses: ncipollo/release-action@v1.14.0
+        if: ${{ github.event_name == 'push' }}
+        with:
+          name: "${{ github.ref_name }}"
+          artifacts: "${{ env.BUILD_TARGET_DIR }}/*"
+          token: ${{ secrets.GH_TOKEN }}
+          body: |
+            ### Build information:
+            * Build target: **${{ env.OPENWRT_TARGET }}**
+            * Device profile: **${{ env.PROFILE }}**
+            * Kwrt version: **${{ env.OPENWRT_VERSION }}**
+            * Image builder downloaded from: ${{ env.IMAGE_BUILDER_URL }}
+            <details>
+            <summary>Installed package</summary>
+
+            ```
+            ${{ env.PACKAGES }}
+            ```
+            </details>
+            <details>
+            <summary>Disabled services</summary>
+
+            ```
+            ${{ env.DISABLED_SERVICES }}
+            ```
+            </details>
