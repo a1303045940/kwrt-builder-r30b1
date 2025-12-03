@@ -16,7 +16,7 @@ on:
         default: false
       CUSTOM_PACKAGE_NAMES:
         description: Name of all custom package inside "custom-packages"
-        default: luci-app-argon-config luci-i18n-argon-config-zh-cn
+        default: luci-app-argon-config
       UPLOAD_SYSUPGRADE_ONLY:
         description: Save sysupgrade only artifact
         type: boolean
@@ -35,14 +35,14 @@ on:
         default: sl_3000-emmc
       OPENWRT_PACKAGES:
         description: Pre install package to openwrt
-        default: luci luci-mod-admin-full luci-theme-bootstrap rpcd-mod-luci uhttpd uhttpd-mod-ubus autocore base-files bash block-mount ca-bundle coremark curl dnsmasq-full dropbear ds-lite f2fsck firewall4 fitblk fstools htop kmod-crypto-hw-safexcel kmod-fs-f2fs kmod-gpio-button-hotplug kmod-leds-gpio kmod-lib-zstd kmod-mmc kmod-mt7915e kmod-mt7981-firmware kmod-phy-aquantia kmod-tcp-bbr libc libgcc libustream-mbedtls logd losetup luci-app-advancedplus luci-app-fan luci-app-filemanager luci-app-firewall luci-app-log-viewer luci-app-package-manager luci-app-syscontrol luci-app-upnp luci-app-wizard luci-base luci-compat luci-lib-fs luci-lib-ipkg luci-proto-wireguard mkf2fs mt7981-wo-firmware mtd nano netifd odhcp6c odhcpd-ipv6only openssh-sftp-server opkg ppp ppp-mod-pppoe resolveip swconfig uboot-envtools uci uclient-fetch urandom-seed urngd wget-ssl wpad-basic-mbedtls zram-swap luci-app-store luci-app-npc luci-app-passwall openclash luci-app-ssr-plus luci-app-passwall2 luci-app-ttyd luci-app-argon-config luci-app-zerotier luci-app-lucky
+        default: luci luci-ssl-openssl luci-base luci-compat luci-app-store luci-app-quickstart luci-i18n-quickstart-zh-cn luci-app-passwall luci-i18n-passwall-zh-cn luci-app-ssr-plus luci-app-passwall2 luci-i18n-passwall2-zh-cn luci-app-openclash luci-app-npc luci-app-zerotier luci-app-argon-config luci-app-tailscale luci-app-mosdns luci-i18n-mosdns-zh-cn luci-app-turboacc luci-app-lucky lucky luci-app-store autocore base-files bash block-mount ca-bundle coremark curl dnsmasq-full dropbear ds-lite f2fsck firewall4 fitblk fstools htop kernel kmod-crypto-hw-safexcel kmod-fs-f2fs kmod-gpio-button-hotplug kmod-leds-gpio kmod-lib-zstd kmod-mmc kmod-mt7915e kmod-mt7981-firmware kmod-phy-aquantia kmod-tcp-bbr libc libgcc libustream-mbedtls logd losetup luci-app-advancedplus luci-app-fan luci-app-filemanager luci-app-firewall luci-app-log-viewer luci-app-package-manager luci-app-syscontrol luci-app-upnp luci-app-wizard luci-base luci-compat luci-lib-fs luci-lib-ipkg luci-proto-wireguard mkf2fs mt7981-wo-firmware mtd nano netifd odhcp6c odhcpd-ipv6only openssh-sftp-server opkg ppp ppp-mod-pppoe resolveip swconfig uboot-envtools uci uclient-fetch urandom-seed urngd wget-ssl wpad-basic-mbedtls zram-swap
       DISABLED_SERVICES:
         description: List of service to disable startup
         default: https-dns-proxy
 
 env:
   BUILD_CUSTOM_PACKAGE: ${{github.event_name == 'push' || inputs.BUILD_CUSTOM_PACKAGE}}
-  CUSTOM_PACKAGE_NAMES: ${{inputs.CUSTOM_PACKAGE_NAMES || 'luci-app-alpha-config luci-theme-alpha wrtbwmon luci-app-wrtbwmon'}}
+  CUSTOM_PACKAGE_NAMES: ${{inputs.CUSTOM_PACKAGE_NAMES || ''}}
   COPY_CUSTOM_FILES: ${{github.event_name == 'push' || inputs.COPY_CUSTOM_FILES}}
   FILES: ""
   UPLOAD_SYSUPGRADE_ONLY: ${{inputs.UPLOAD_SYSUPGRADE_ONLY || false}}
@@ -50,7 +50,7 @@ env:
   OPENWRT_VERSION: ${{inputs.OPENWRT_VERSION || '24.10'}}
   OPENWRT_TARGET: ${{inputs.OPENWRT_TARGET || 'mediatek/filogic'}}
   PROFILE: ${{inputs.OPENWRT_PROFILE || 'sl_3000-emmc'}}
-  PACKAGES: ${{inputs.OPENWRT_PACKAGES || 'luci luci-mod-admin-full luci-theme-bootstrap rpcd-mod-luci uhttpd uhttpd-mod-ubus autocore base-files bash block-mount ca-bundle coremark curl dnsmasq-full dropbear ds-lite f2fsck firewall4 fitblk fstools htop kmod-crypto-hw-safexcel kmod-fs-f2fs kmod-gpio-button-hotplug kmod-leds-gpio kmod-lib-zstd kmod-mmc kmod-mt7915e kmod-mt7981-firmware kmod-phy-aquantia kmod-tcp-bbr libc libgcc libustream-mbedtls logd losetup luci-app-advancedplus luci-app-fan luci-app-filemanager luci-app-firewall luci-app-log-viewer luci-app-package-manager luci-app-syscontrol luci-app-upnp luci-app-wizard luci-base luci-compat luci-lib-fs luci-lib-ipkg luci-proto-wireguard mkf2fs mt7981-wo-firmware mtd nano netifd odhcp6c odhcpd-ipv6only openssh-sftp-server opkg ppp ppp-mod-pppoe resolveip swconfig uboot-envtools uci uclient-fetch urandom-seed urngd wget-ssl wpad-basic-mbedtls zram-swap luci-app-store luci-app-npc luci-app-passwall openclash luci-app-ssr-plus luci-app-passwall2 luci-app-ttyd luci-app-argon-config luci-app-zerotier luci-app-lucky'}}
+  PACKAGES: ${{inputs.OPENWRT_PACKAGES || 'luci luci-ssl-openssl luci-base luci-compat luci-app-store luci-app-quickstart luci-i18n-quickstart-zh-cn luci-app-passwall luci-i18n-passwall-zh-cn luci-app-ssr-plus luci-app-passwall2 luci-i18n-passwall2-zh-cn luci-app-openclash luci-app-npc luci-app-zerotier luci-app-argon-config luci-app-tailscale luci-app-mosdns luci-i18n-mosdns-zh-cn luci-app-turboacc luci-app-lucky lucky luci-app-store autocore base-files bash block-mount ca-bundle coremark curl dnsmasq-full dropbear ds-lite f2fsck firewall4 fitblk fstools htop kernel kmod-crypto-hw-safexcel kmod-fs-f2fs kmod-gpio-button-hotplug kmod-leds-gpio kmod-lib-zstd kmod-mmc kmod-mt7915e kmod-mt7981-firmware kmod-phy-aquantia kmod-tcp-bbr libc libgcc libustream-mbedtls logd losetup luci-app-advancedplus luci-app-fan luci-app-filemanager luci-app-firewall luci-app-log-viewer luci-app-package-manager luci-app-syscontrol luci-app-upnp luci-app-wizard luci-base luci-compat luci-lib-fs luci-lib-ipkg luci-proto-wireguard mkf2fs mt7981-wo-firmware mtd nano netifd odhcp6c odhcpd-ipv6only openssh-sftp-server opkg ppp ppp-mod-pppoe resolveip swconfig uboot-envtools uci uclient-fetch urandom-seed urngd wget-ssl wpad-basic-mbedtls zram-swap'}}
   DISABLED_SERVICES:  ${{inputs.DISABLED_SERVICES || 'https-dns-proxy'}}
   IMAGE_BUILDER_FILE_NAME: ""
   IMAGE_BUILDER_URL: ""
