@@ -143,26 +143,29 @@ jobs:
         run: |
           cd ${{ env.IMAGE_BUILDER_FILE_NAME }}
           
-          # 完全重写 repositories.conf,同时包含 Kwrt 和 OpenWrt 官方源
-          cat > repositories.conf << 'EOF'
-          ## Kwrt 核心源
-          src/gz kwrt_core https://dl.openwrt.ai/releases/24.10/targets/mediatek/filogic/packages
-          src/gz kwrt_base https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/base
-          src/gz kwrt_luci https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/luci
-          src/gz kwrt_packages https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/packages
-          src/gz kwrt_routing https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/routing
-          src/gz kwrt_kiddin9 https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/kiddin9
-          
-          ## OpenWrt 官方源 (提供完整的中文语言包)
-          src/gz openwrt_base https://downloads.openwrt.org/releases/24.10.4/targets/mediatek/filogic/packages
-          src/gz openwrt_packages https://downloads.openwrt.org/releases/24.10.4/packages/aarch64_cortex-a53/packages
-          src/gz openwrt_luci https://downloads.openwrt.org/releases/24.10.4/packages/aarch64_cortex-a53/luci
-          src/gz openwrt_routing https://downloads.openwrt.org/releases/24.10.4/packages/aarch64_cortex-a53/routing
-          EOF
-          
-          echo "==== Repository configuration ===="
-          cat repositories.conf
-          
+           # 自动检测内核版本
+            KERNEL_VERSION=$(cat .targetinfo | grep -m1 "Kernel-Version" | cut -d: -f2 | xargs || echo "6.6.116")
+            
+            cat > repositories.conf << EOF
+            ## Kwrt 核心源 (动态内核版本)
+            src/gz kwrt_core https://dl.openwrt.ai/releases/24.10/targets/mediatek/filogic/${KERNEL_VERSION}
+            src/gz kwrt_base https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/base
+            src/gz kwrt_luci https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/luci
+            src/gz kwrt_packages https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/packages
+            src/gz kwrt_routing https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/routing
+            src/gz kwrt_kiddin9 https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/kiddin9
+            
+            ## OpenWrt 官方源
+            src/gz openwrt_base https://downloads.openwrt.org/releases/24.10.4/targets/mediatek/filogic/packages
+            src/gz openwrt_packages https://downloads.openwrt.org/releases/24.10.4/packages/aarch64_cortex-a53/packages
+            src/gz openwrt_luci https://downloads.openwrt.org/releases/24.10.4/packages/aarch64_cortex-a53/luci
+            src/gz openwrt_routing https://downloads.openwrt.org/releases/24.10.4/packages/aarch64_cortex-a53/routing
+            EOF
+        
+            echo "==== Detected kernel version: ${KERNEL_VERSION} ===="
+            echo "==== Repository configuration ===="
+            cat repositories.conf
+        
           # 定义所有需要的中文包
           CN_PACKAGES="luci-i18n-base-zh-cn \
           luci-i18n-firewall-zh-cn \
