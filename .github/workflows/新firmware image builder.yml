@@ -1,0 +1,234 @@
+name: 新firmware image builder
+
+on:
+  push:
+    tags:
+      - '**'
+  workflow_dispatch:
+    inputs:
+      BUILD_CUSTOM_PACKAGE:
+        description: Build custom package inside "custom-packages"
+        type: boolean
+        default: false
+      COPY_CUSTOM_FILES:
+        description: Copy custom files inside "custom-files" to image builder
+        type: boolean
+        default: false
+      CUSTOM_PACKAGE_NAMES:
+        description: Name of all custom package inside "custom-packages"
+        default: luci-app-argon-config luci-i18n-argon-config-zh-cn
+      UPLOAD_SYSUPGRADE_ONLY:
+        description: Save sysupgrade only artifact
+        type: boolean
+        default: true
+      OPENWRT_DOWNLOAD_URL:
+        description: Openwrt base download url
+        default: https://dl.openwrt.ai/releases
+      OPENWRT_VERSION:
+        description: Kwrt version
+        default: "24.10"
+      OPENWRT_TARGET:
+        description: Kwrt target to build
+        default: mediatek/filogic
+      OPENWRT_PROFILE:
+        description: Openwrt device profile name
+        default: sl_3000-emmc
+      OPENWRT_PACKAGES:
+        description: Pre install package to openwrt
+        default: luci luci-mod-admin-full luci-theme-bootstrap rpcd-mod-luci uhttpd uhttpd-mod-ubus autocore base-files bash block-mount ca-bundle coremark curl dnsmasq-full dropbear ds-lite f2fsck firewall4 fitblk fstools htop kmod-crypto-hw-safexcel kmod-fs-f2fs kmod-gpio-button-hotplug kmod-leds-gpio kmod-lib-zstd kmod-mmc kmod-mt7915e kmod-mt7981-firmware kmod-phy-aquantia kmod-tcp-bbr libc libgcc libustream-mbedtls logd losetup luci-app-advancedplus luci-app-fan luci-app-filemanager luci-app-firewall luci-app-log-viewer luci-app-package-manager luci-app-syscontrol luci-app-upnp luci-app-wizard luci-base luci-compat luci-lib-fs luci-lib-ipkg luci-proto-wireguard mkf2fs mt7981-wo-firmware mtd nano netifd odhcp6c odhcpd-ipv6only openssh-sftp-server opkg ppp ppp-mod-pppoe resolveip swconfig uboot-envtools uci uclient-fetch urandom-seed urngd wget-ssl wpad-basic-mbedtls zram-swap luci-app-store luci-app-npc luci-app-passwall openclash luci-app-ssr-plus luci-app-passwall2 luci-app-ttyd luci-app-argon-config luci-app-zerotier luci-app-lucky
+      DISABLED_SERVICES:
+        description: List of service to disable startup
+        default: https-dns-proxy
+
+env:
+  BUILD_CUSTOM_PACKAGE: ${{github.event_name == 'push' || inputs.BUILD_CUSTOM_PACKAGE}}
+  CUSTOM_PACKAGE_NAMES: ${{inputs.CUSTOM_PACKAGE_NAMES || 'luci-app-alpha-config luci-theme-alpha wrtbwmon luci-app-wrtbwmon'}}
+  COPY_CUSTOM_FILES: ${{github.event_name == 'push' || inputs.COPY_CUSTOM_FILES}}
+  FILES: ""
+  UPLOAD_SYSUPGRADE_ONLY: ${{inputs.UPLOAD_SYSUPGRADE_ONLY || false}}
+  OPENWRT_DOWNLOAD_URL: ${{inputs.OPENWRT_DOWNLOAD_URL || 'https://dl.openwrt.ai/releases'}}
+  OPENWRT_VERSION: ${{inputs.OPENWRT_VERSION || '24.10'}}
+  OPENWRT_TARGET: ${{inputs.OPENWRT_TARGET || 'mediatek/filogic'}}
+  PROFILE: ${{inputs.OPENWRT_PROFILE || 'sl_3000-emmc'}}
+  PACKAGES: ${{inputs.OPENWRT_PACKAGES || 'luci luci-mod-admin-full luci-theme-bootstrap rpcd-mod-luci uhttpd uhttpd-mod-ubus autocore base-files bash block-mount ca-bundle coremark curl dnsmasq-full dropbear ds-lite f2fsck firewall4 fitblk fstools htop kmod-crypto-hw-safexcel kmod-fs-f2fs kmod-gpio-button-hotplug kmod-leds-gpio kmod-lib-zstd kmod-mmc kmod-mt7915e kmod-mt7981-firmware kmod-phy-aquantia kmod-tcp-bbr libc libgcc libustream-mbedtls logd losetup luci-app-advancedplus luci-app-fan luci-app-filemanager luci-app-firewall luci-app-log-viewer luci-app-package-manager luci-app-syscontrol luci-app-upnp luci-app-wizard luci-base luci-compat luci-lib-fs luci-lib-ipkg luci-proto-wireguard mkf2fs mt7981-wo-firmware mtd nano netifd odhcp6c odhcpd-ipv6only openssh-sftp-server opkg ppp ppp-mod-pppoe resolveip swconfig uboot-envtools uci uclient-fetch urandom-seed urngd wget-ssl wpad-basic-mbedtls zram-swap luci-app-store luci-app-npc luci-app-passwall openclash luci-app-ssr-plus luci-app-passwall2 luci-app-ttyd luci-app-argon-config luci-app-zerotier luci-app-lucky'}}
+  DISABLED_SERVICES:  ${{inputs.DISABLED_SERVICES || 'https-dns-proxy'}}
+  IMAGE_BUILDER_FILE_NAME: ""
+  IMAGE_BUILDER_URL: ""
+  NEED_DOWNLOAD: true
+  BUILD_TARGET_DIR: ""
+  OUTPUT_BASE_NAME: ""
+  BUILDER_FILE_EXT: ".xz"
+  OPENWRT_PACKAGE_VERSION: "24.10.4"
+
+jobs:
+  build-image:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout if needed
+        uses: actions/checkout@v4
+        if: ${{ env.BUILD_CUSTOM_PACKAGE }}
+
+      - name: Setup variables
+        run: |
+          OPENWRT_TARGET=${{ env.OPENWRT_TARGET }}
+          OPENWRT_TARGET_AS_NAME=${OPENWRT_TARGET////-}
+          IMAGE_BUILDER_FILE_NAME=kwrt-imagebuilder-${OPENWRT_TARGET_AS_NAME}.Linux-x86_64
+          IMAGE_BUILDER_URL="https://github.com/a1303045940/Kwrt/releases/download/12%2F03_2025_19%2F33_mediatek_filogic/kwrt-imagebuilder-mediatek-filogic.Linux-x86_64.tar"
+          CURL_OUTPUT=$(curl --HEAD ${IMAGE_BUILDER_URL}.xz)
+          BUILDER_FILE_EXT=${{ env.BUILDER_FILE_EXT }}
+          if [[ $(echo $CURL_OUTPUT | grep "404") != "" ]]; then
+            BUILDER_FILE_EXT=".gz"
+            echo "BUILDER_FILE_EXT=${BUILDER_FILE_EXT}" >> $GITHUB_ENV
+          fi
+          if [[ $(echo $CURL_OUTPUT | grep "404") != "" ]]; then
+            BUILDER_FILE_EXT=".zst"
+            echo "BUILDER_FILE_EXT=${BUILDER_FILE_EXT}" >> $GITHUB_ENV
+          fi
+          IMAGE_BUILDER_URL=${IMAGE_BUILDER_URL}${BUILDER_FILE_EXT}
+          BUILD_TARGET_DIR=$IMAGE_BUILDER_FILE_NAME/bin/targets/$OPENWRT_TARGET
+          OUTPUT_BASE_NAME=kwrt-${OPENWRT_TARGET_AS_NAME}-${{ env.PROFILE }}
+          echo "IMAGE_BUILDER_FILE_NAME=${IMAGE_BUILDER_FILE_NAME}" >> $GITHUB_ENV
+          echo "IMAGE_BUILDER_URL=${IMAGE_BUILDER_URL}" >> $GITHUB_ENV
+          echo "BUILD_TARGET_DIR=${BUILD_TARGET_DIR}" >> $GITHUB_ENV
+          echo "OUTPUT_BASE_NAME=${OUTPUT_BASE_NAME}" >> $GITHUB_ENV
+
+      - name: Restore cache
+        uses: actions/cache/restore@v4
+        with:
+          path: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+          key: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+
+      - name: Check file 
+        shell: bash
+        run: |
+          if [[ -d ${{env.IMAGE_BUILDER_FILE_NAME}} ]]; then
+            echo "NEED_DOWNLOAD=false" >> $GITHUB_ENV
+          else
+            echo "NEED_DOWNLOAD=true" >> $GITHUB_ENV
+          fi
+
+      - name: Download and extract image builder
+        if: ${{ env.NEED_DOWNLOAD == 'true' }}
+        run: |
+          wget ${{ env.IMAGE_BUILDER_URL }}
+          IMAGE_BUILD_FILE=${{env.IMAGE_BUILDER_FILE_NAME}}.tar${{ env.BUILDER_FILE_EXT }}
+          if [[ ${{ env.BUILDER_FILE_EXT }} == ".zst" ]]; then
+            tar --zstd -x -f ${IMAGE_BUILD_FILE}
+          else
+            tar -J -x -f ${IMAGE_BUILD_FILE}
+          fi
+
+      - name: Copy custom packages and add custom package
+        if: ${{ env.BUILD_CUSTOM_PACKAGE }}
+        run: |
+          rsync -hav custom-packages/* ${{env.IMAGE_BUILDER_FILE_NAME}}/packages/
+          echo "PACKAGES=${{env.PACKAGES}} ${{env.CUSTOM_PACKAGE_NAMES}}" >> $GITHUB_ENV
+
+      - name: Copy custom files to image builder
+        if: ${{ env.COPY_CUSTOM_FILES }}
+        run: |
+          rsync -hav custom-files/* ${{env.IMAGE_BUILDER_FILE_NAME}}/files/
+          echo "FILES=files" >> $GITHUB_ENV
+
+      - name: Save cache
+        if: ${{ env.NEED_DOWNLOAD == 'true' }}
+        uses: actions/cache/save@v4
+        with:
+          path: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+          key: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+          
+      - name: Build kwrt image
+        run: |
+          cd ${{ env.IMAGE_BUILDER_FILE_NAME }}
+          # switch to online repository
+          sed -i 's|file://www/wwwroot/|https://|g' repositories.conf
+          # change to gz format
+          sed -i 's|src |src/gz |g' repositories.conf
+          # add openwrt repository for missing packages
+          echo "# Openwrt repo for missing package" >> repositories.conf
+          echo "src/gz openwrt_packages https://downloads.openwrt.org/releases/${{ env.OPENWRT_PACKAGE_VERSION }}/packages/aarch64_cortex-a53/packages" >> repositories.conf
+          echo "src/gz openwrt_luci https://downloads.openwrt.org/releases/${{ env.OPENWRT_PACKAGE_VERSION }}/packages/aarch64_cortex-a53/luci" >> repositories.conf
+          cat repositories.conf
+          
+          # Auto-add Chinese language packages
+          echo "==== Auto-detecting and adding Chinese language packages ===="
+          CN_PACKAGES=""
+          
+          # Extract luci-app names from PACKAGES
+          LUCI_APPS=$(echo "${{ env.PACKAGES }}" | tr ' ' '\n' | grep '^luci-app-' | sed 's/^luci-app-//')
+          
+          # Always add base Chinese packages
+          CN_PACKAGES="luci-i18n-base-zh-cn"
+          
+          # Check and add language packages for each luci-app
+          for app in $LUCI_APPS; do
+            # Try to find the corresponding Chinese language package
+            I18N_PKG="luci-i18n-${app}-zh-cn"
+            
+            # Check if package exists in repositories (this will just attempt to add it)
+            # The imagebuilder will skip packages that don't exist
+            CN_PACKAGES="$CN_PACKAGES $I18N_PKG"
+          done
+          
+          echo "Chinese packages to install: $CN_PACKAGES"
+          
+          # Combine original packages with Chinese packages
+          ALL_PACKAGES="${{ env.PACKAGES }} $CN_PACKAGES"
+          
+          echo "==== Building image with packages ===="
+          make image \
+          PROFILE=${{ env.PROFILE }} \
+          PACKAGES="$ALL_PACKAGES" \
+          FILES="${{ env.FILES }}" \
+          DISABLED_SERVICES="${{ env.DISABLED_SERVICES }}"
+          
+          ls -lah bin/targets/${{ env.OPENWRT_TARGET }}
+
+      - name: Upload sysupgrade output
+        if: ${{ github.event_name == 'workflow_dispatch' && env.UPLOAD_SYSUPGRADE_ONLY == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.OUTPUT_BASE_NAME }}-sysupgrade
+          path: |
+            ${{ env.BUILD_TARGET_DIR }}/${{ env.OUTPUT_BASE_NAME }}-squashfs-sysupgrade.bin
+            ${{ env.BUILD_TARGET_DIR }}/profiles.json
+            ${{ env.BUILD_TARGET_DIR }}/sha256sums
+          retention-days: 5
+
+      - name: Upload all output
+        if: ${{ github.event_name == 'workflow_dispatch' && env.UPLOAD_SYSUPGRADE_ONLY == 'false' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.OUTPUT_BASE_NAME }}
+          path: ${{ env.BUILD_TARGET_DIR }}
+          retention-days: 5
+
+      - name: Create release
+        uses: ncipollo/release-action@v1.14.0
+        if: ${{ github.event_name == 'push' }}
+        with:
+          name: "${{ github.ref_name }}"
+          artifacts: "${{ env.BUILD_TARGET_DIR }}/*"
+          token: ${{ secrets.GH_TOKEN }}
+          body: |
+            ### Build information:
+            * Build target: **${{ env.OPENWRT_TARGET }}**
+            * Device profile: **${{ env.PROFILE }}**
+            * Kwrt version: **${{ env.OPENWRT_VERSION }}**
+            * Image builder downloaded from: ${{ env.IMAGE_BUILDER_URL }}
+            <details>
+            <summary>Installed package</summary>
+
+            ```
+            ${{ env.PACKAGES }}
+            ```
+            </details>
+            <details>
+            <summary>Disabled services</summary>
+
+            ```
+            ${{ env.DISABLED_SERVICES }}
+            ```
+            </details>
