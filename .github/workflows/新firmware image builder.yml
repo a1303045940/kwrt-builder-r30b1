@@ -94,20 +94,20 @@ jobs:
           echo "BUILD_TARGET_DIR=${BUILD_TARGET_DIR}" >> $GITHUB_ENV
           echo "OUTPUT_BASE_NAME=${OUTPUT_BASE_NAME}" >> $GITHUB_ENV
 
-      - name: Restore cache
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ env.IMAGE_BUILDER_FILE_NAME }}
-          key: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+      # - name: Restore cache
+      #   uses: actions/cache/restore@v4
+      #   with:
+      #     path: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+      #     key: ${{ env.IMAGE_BUILDER_FILE_NAME }}
 
-      - name: Check file 
-        shell: bash
-        run: |
-          if [[ -d ${{env.IMAGE_BUILDER_FILE_NAME}} ]]; then
-            echo "NEED_DOWNLOAD=false" >> $GITHUB_ENV
-          else
-            echo "NEED_DOWNLOAD=true" >> $GITHUB_ENV
-          fi
+      # - name: Check file 
+      #   shell: bash
+      #   run: |
+      #     if [[ -d ${{env.IMAGE_BUILDER_FILE_NAME}} ]]; then
+      #       echo "NEED_DOWNLOAD=false" >> $GITHUB_ENV
+      #     else
+      #       echo "NEED_DOWNLOAD=true" >> $GITHUB_ENV
+      #     fi
 
       - name: Download and extract image builder
         if: ${{ env.NEED_DOWNLOAD == 'true' }}
@@ -132,12 +132,12 @@ jobs:
           rsync -hav custom-files/* ${{env.IMAGE_BUILDER_FILE_NAME}}/files/
           echo "FILES=files" >> $GITHUB_ENV
 
-      - name: Save cache
-        if: ${{ env.NEED_DOWNLOAD == 'true' }}
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ env.IMAGE_BUILDER_FILE_NAME }}
-          key: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+      # - name: Save cache
+      #   if: ${{ env.NEED_DOWNLOAD == 'true' }}
+      #   uses: actions/cache/save@v4
+      #   with:
+      #     path: ${{ env.IMAGE_BUILDER_FILE_NAME }}
+      #     key: ${{ env.IMAGE_BUILDER_FILE_NAME }}
           
       - name: Build kwrt image
         run: |
