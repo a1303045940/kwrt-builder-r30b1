@@ -142,49 +142,53 @@ jobs:
       - name: Build kwrt image
         run: |
           cd ${{ env.IMAGE_BUILDER_FILE_NAME }}
-          # switch to online repository
-          sed -i 's|file://www/wwwroot/|https://|g' repositories.conf
-          # change to gz format
-          sed -i 's|src |src/gz |g' repositories.conf
-          # add openwrt repository for missing packages
-          echo "# Openwrt repo for missing package" >> repositories.conf
-          echo "src/gz openwrt_packages https://downloads.openwrt.org/releases/${{ env.OPENWRT_PACKAGE_VERSION }}/packages/aarch64_cortex-a53/packages" >> repositories.conf
-          echo "src/gz openwrt_luci https://downloads.openwrt.org/releases/${{ env.OPENWRT_PACKAGE_VERSION }}/packages/aarch64_cortex-a53/luci" >> repositories.conf
+          
+          # 完全重写 repositories.conf,同时包含 Kwrt 和 OpenWrt 官方源
+          cat > repositories.conf << 'EOF'
+          ## Kwrt 核心源
+          src/gz kwrt_core https://dl.openwrt.ai/releases/24.10/targets/mediatek/filogic/packages
+          src/gz kwrt_base https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/base
+          src/gz kwrt_luci https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/luci
+          src/gz kwrt_packages https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/packages
+          src/gz kwrt_routing https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/routing
+          src/gz kwrt_kiddin9 https://dl.openwrt.ai/releases/24.10/packages/aarch64_cortex-a53/kiddin9
+          
+          ## OpenWrt 官方源 (提供完整的中文语言包)
+          src/gz openwrt_base https://downloads.openwrt.org/releases/24.10.4/targets/mediatek/filogic/packages
+          src/gz openwrt_packages https://downloads.openwrt.org/releases/24.10.4/packages/aarch64_cortex-a53/packages
+          src/gz openwrt_luci https://downloads.openwrt.org/releases/24.10.4/packages/aarch64_cortex-a53/luci
+          src/gz openwrt_routing https://downloads.openwrt.org/releases/24.10.4/packages/aarch64_cortex-a53/routing
+          EOF
+          
+          echo "==== Repository configuration ===="
           cat repositories.conf
           
-          # Auto-add Chinese language packages
-          echo "==== Auto-detecting and adding Chinese language packages ===="
-          CN_PACKAGES=""
+          # 定义所有需要的中文包
+          CN_PACKAGES="luci-i18n-base-zh-cn \
+          luci-i18n-firewall-zh-cn \
+          luci-i18n-opkg-zh-cn \
+          luci-i18n-ddns-zh-cn \
+          luci-i18n-upnp-zh-cn \
+          luci-i18n-ttyd-zh-cn \
+          luci-i18n-zerotier-zh-cn \
+          luci-i18n-wireguard-zh-cn"
           
-          # Extract luci-app names from PACKAGES
-          LUCI_APPS=$(echo "${{ env.PACKAGES }}" | tr ' ' '\n' | grep '^luci-app-' | sed 's/^luci-app-//')
+          echo "==== Chinese language packages to install ===="
+          echo "$CN_PACKAGES"
           
-          # Always add base Chinese packages
-          CN_PACKAGES="luci-i18n-base-zh-cn"
-          
-          # Check and add language packages for each luci-app
-          for app in $LUCI_APPS; do
-            # Try to find the corresponding Chinese language package
-            I18N_PKG="luci-i18n-${app}-zh-cn"
-            
-            # Check if package exists in repositories (this will just attempt to add it)
-            # The imagebuilder will skip packages that don't exist
-            CN_PACKAGES="$CN_PACKAGES $I18N_PKG"
-          done
-          
-          echo "Chinese packages to install: $CN_PACKAGES"
-          
-          # Combine original packages with Chinese packages
+          # 合并所有包
           ALL_PACKAGES="${{ env.PACKAGES }} $CN_PACKAGES"
           
-          echo "==== Building image with packages ===="
+          echo "==== Building firmware image ===="
           make image \
           PROFILE=${{ env.PROFILE }} \
           PACKAGES="$ALL_PACKAGES" \
           FILES="${{ env.FILES }}" \
           DISABLED_SERVICES="${{ env.DISABLED_SERVICES }}"
           
+          echo "==== Build completed ===="
           ls -lah bin/targets/${{ env.OPENWRT_TARGET }}
+
 
       - name: Upload sysupgrade output
         if: ${{ github.event_name == 'workflow_dispatch' && env.UPLOAD_SYSUPGRADE_ONLY == 'true' }}
